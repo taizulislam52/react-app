@@ -1,18 +1,11 @@
-import ListGroup from "./components/ListGroup";
-import { countries } from "./constants";
+import Button from "./components/Button";
 
 function App() {
-  const handleSelectCountry = (country: string) => {
-    console.log(country);
-  };
-
   return (
-    <div className="container">
-      <ListGroup
-        countries={countries}
-        heading="Countries"
-        onSelectCountry={handleSelectCountry}
-      />
+    <div className="container my-4">
+      <Button color="info" onClick={() => console.log("Click")}>
+        Button
+      </Button>
     </div>
   );
 }
