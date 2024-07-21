@@ -9,3 +9,8 @@ export const countries: string[] = [
     "Itely",
     "India",
 ];
+
+export interface cartProductProps {
+    id: number;
+    title: string;
+};
