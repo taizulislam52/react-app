@@ -1,0 +1,11 @@
+## props vs state
+
+1
+  -- props are input passed to a component similar to function arguments
+  -- state is data managent by a component treat like a local variable
+
+2
+  -- props are immutable (readonly)
+  -- state is mutable
+
+If React detech any change on props and state change react will re-render the components and update the dom accordingly
