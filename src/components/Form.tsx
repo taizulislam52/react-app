@@ -1,14 +1,34 @@
 import { useForm, FieldValues } from "react-hook-form";
-interface formData {
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+type FormData = {
   name: string;
   age: number;
-}
+};
+
+const schema: yup.ObjectSchema<FormData> = yup
+  .object({
+    name: yup
+      .string()
+      .required("Name is required.")
+      .min(3, "Name must be at least 3 character long."),
+    age: yup
+      .number()
+      .typeError("Age is required.")
+      .min(18, "Age must be greater than or equal to 18.")
+      .required(),
+  })
+  .required();
+
 function Form() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<formData>();
+    formState: { errors, isValid },
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+  });
 
   const onSubmit = (data: FieldValues) => console.log(data);
 
@@ -19,38 +39,26 @@ function Form() {
           Name
         </label>
         <input
-          {...register("name", { required: true, minLength: 3 })}
+          {...register("name")}
           type="text"
           id="name"
           className="form-control"
         />
-        {errors.name?.type === "required" && (
-          <p className="text-danger">The name field is required</p>
-        )}
-        {errors.name?.type === "minLength" && (
-          <p className="text-danger">
-            The name must be at least 3 charectars long
-          </p>
-        )}
+        {errors.name && <p className="text-danger">{errors.name.message}</p>}
       </div>
       <div className="form-group mb-3">
         <label className="form-label" htmlFor="age">
           Age
         </label>
         <input
-          {...register("age", { required: true, min: 10 })}
+          {...register("age", { valueAsNumber: true })}
           type="number"
           id="age"
           className="form-control"
         />
-        {errors.age?.type === "required" && (
-          <p className="text-danger">The age field is required</p>
-        )}
-        {errors.age?.type === "min" && (
-          <p className="text-danger">The age must be greater or equal 10</p>
-        )}
+        {errors.age && <p className="text-danger">{errors.age.message}</p>}
       </div>
-      <button className="btn btn-primary" type="submit">
+      <button disabled={!isValid} className="btn btn-primary" type="submit">
         Submit
       </button>
     </form>
