@@ -1,3 +1,5 @@
-import ExpenseTracker from "./ExpenseTracker";
+import ExpenseForm from "./ExpenseForm";
 
-export default ExpenseTracker;
+const categories = ["Groceries","Utilities", "Entertainment"];
+
+export { ExpenseForm, categories };
