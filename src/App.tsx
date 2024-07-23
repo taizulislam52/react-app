@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ExpenseForm } from "./components/ExpenseTracker";
+import { ExpenseList, ExpenseForm } from "./components/ExpenseTracker";
 
 function App() {
   const [expenses, setExpenses] = useState([
@@ -8,6 +8,10 @@ function App() {
     { id: 3, description: "Netflix", amount: 200, category: "Entertainment" },
   ]);
 
+  const handleDelete = (id: number) => {
+    setExpenses(expenses.filter((expense) => expense.id !== id));
+  };
+
   return (
     <div className="container my-4">
       <ExpenseForm
@@ -15,6 +19,8 @@ function App() {
           setExpenses([...expenses, { ...expense, id: expenses.length + 1 }])
         }
       />
+
+      <ExpenseList expenses={expenses} onDelete={handleDelete} />
     </div>
   );
 }

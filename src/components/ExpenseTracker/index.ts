@@ -1,5 +1,6 @@
+import ExpenseList from "./ExpenseList";
 import ExpenseForm from "./ExpenseForm";
 
 const categories = ["Groceries","Utilities", "Entertainment"];
 
-export { ExpenseForm, categories };
+export { ExpenseList, ExpenseForm, categories };
