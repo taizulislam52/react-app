@@ -1,37 +1,35 @@
-import { useState } from "react";
-import {
-  ExpenseList,
-  ExpenseFilter,
-  ExpenseForm,
-} from "./components/ExpenseTracker";
+import { useEffect, useRef, useState } from "react";
+import ProductList from "./components/ProductList";
 
 function App() {
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [expenses, setExpenses] = useState([
-    { id: 1, description: "Milk", amount: 100, category: "Groceries" },
-    { id: 2, description: "Electricity", amount: 1200, category: "Utilities" },
-    { id: 3, description: "Netflix", amount: 200, category: "Entertainment" },
-  ]);
+  const [category, setCategory] = useState("");
 
-  const handleDelete = (id: number) => {
-    setExpenses(expenses.filter((expense) => expense.id !== id));
-  };
+  const ref = useRef<HTMLInputElement>(null);
 
-  const filteredExpenses = selectedCategory
-    ? expenses.filter((expense) => expense.category === selectedCategory)
-    : expenses;
+  // call afteRender
+  useEffect(() => {
+    if (ref.current) ref.current.focus();
+
+    document.title = "React App";
+  }, []);
 
   return (
     <div className="container my-4">
-      <ExpenseForm
-        onSubmit={(expense) =>
-          setExpenses([...expenses, { ...expense, id: expenses.length + 1 }])
-        }
+      <input
+        ref={ref}
+        type="text"
+        className="form-control"
+        placeholder="Add category"
       />
-      <ExpenseFilter
-        onSelectCategory={(category) => setSelectedCategory(category)}
-      />
-      <ExpenseList expenses={filteredExpenses} onDelete={handleDelete} />
+      <select
+        className="form-select my-4"
+        onChange={(event) => setCategory(event.target.value)}
+      >
+        <option value=""></option>
+        <option value="Category One">Category One</option>
+        <option value="Category Two">Category Two</option>
+      </select>
+      <ProductList category={category} />
     </div>
   );
 }
