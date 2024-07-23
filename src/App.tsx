@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { ExpenseList, ExpenseForm } from "./components/ExpenseTracker";
+import {
+  ExpenseList,
+  ExpenseFilter,
+  ExpenseForm,
+} from "./components/ExpenseTracker";
 
 function App() {
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [expenses, setExpenses] = useState([
     { id: 1, description: "Milk", amount: 100, category: "Groceries" },
     { id: 2, description: "Electricity", amount: 1200, category: "Utilities" },
@@ -12,6 +17,10 @@ function App() {
     setExpenses(expenses.filter((expense) => expense.id !== id));
   };
 
+  const filteredExpenses = selectedCategory
+    ? expenses.filter((expense) => expense.category === selectedCategory)
+    : expenses;
+
   return (
     <div className="container my-4">
       <ExpenseForm
@@ -19,8 +28,10 @@ function App() {
           setExpenses([...expenses, { ...expense, id: expenses.length + 1 }])
         }
       />
-
-      <ExpenseList expenses={expenses} onDelete={handleDelete} />
+      <ExpenseFilter
+        onSelectCategory={(category) => setSelectedCategory(category)}
+      />
+      <ExpenseList expenses={filteredExpenses} onDelete={handleDelete} />
     </div>
   );
 }
