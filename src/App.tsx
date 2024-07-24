@@ -1,37 +1,33 @@
-import { useEffect, useRef, useState } from "react";
-import ProductList from "./components/ProductList";
+import axios from "axios";
+import { useEffect, useState } from "react";
+
+interface User {
+  id: number;
+  name: string;
+}
 
 function App() {
-  const [category, setCategory] = useState("");
+  const [users, setUsers] = useState<User[]>([]);
+  const [error, setError] = useState("");
 
-  const ref = useRef<HTMLInputElement>(null);
-
-  // call afteRender
   useEffect(() => {
-    if (ref.current) ref.current.focus();
-
-    document.title = "React App";
+    axios
+      .get<User[]>("https://jsonplaceholder.typicode.com/users")
+      .then((res) => setUsers([...res.data]))
+      .catch((err) => setError(err.message));
   }, []);
 
   return (
     <div className="container my-4">
-      <input
-        ref={ref}
-        type="text"
-        className="form-control"
-        placeholder="Add category"
-      />
-      <select
-        className="form-select my-4"
-        onChange={(event) => setCategory(event.target.value)}
-      >
-        <option value=""></option>
-        <option value="Category One">Category One</option>
-        <option value="Category Two">Category Two</option>
-      </select>
-      <ProductList category={category} />
+      {error && <p className="text-danger">{error}</p>}
+      <ul className="list-group my-4">
+        {users.map((user) => (
+          <li key={user.id} className="list-group-item">
+            {user.name}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
-
 export default App;
