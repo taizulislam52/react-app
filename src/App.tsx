@@ -1,15 +1,34 @@
 import axios, { CanceledError } from "axios";
 import { useEffect, useState } from "react";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useForm, FieldValues } from "react-hook-form";
 
+type FormData = {
+  name: string;
+};
 interface User {
   id: number;
   name: string;
 }
 
+const schema: yup.ObjectSchema<FormData> = yup.object({
+  name: yup.string().required("Name is required"),
+});
+
 function App() {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState("");
   const [isLoading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<FormData>({
+    resolver: yupResolver(schema),
+  });
 
   useEffect(() => {
     const controller = new AbortController();
@@ -43,6 +62,22 @@ function App() {
       });
   };
 
+  const onSubmit = (data: FormData) => {
+    const originalUsers = [...users];
+    const newUser = { id: users.length + 1, ...data };
+    setUsers([newUser, ...users]);
+    axios
+      .post("https://jsonplaceholder.typicode.com/users/", newUser)
+      .then(({ data: savedUser }) => {
+        setUsers([savedUser, ...users]);
+        reset();
+      })
+      .catch((err) => {
+        setError(err.message);
+        setUsers(originalUsers);
+      });
+  };
+
   return (
     <div className="container my-4">
       {error && <p className="text-danger">{error}</p>}
@@ -53,6 +88,29 @@ function App() {
           </div>
         </div>
       )}
+      <form
+        className="row g-3 justify-content-between"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <div className="col-sm-10">
+          <label className="visually-hidden" htmlFor="name">
+            Name
+          </label>
+          <input
+            {...register("name")}
+            type="text"
+            className="form-control"
+            id="name"
+            placeholder="Name"
+          />
+          {errors.name && <p className="text-danger">{errors.name.message}</p>}
+        </div>
+        <div className="col-sm-2">
+          <button type="submit" className="btn btn-primary">
+            Create
+          </button>
+        </div>
+      </form>
       <ul className="list-group my-4">
         {users.map((user) => (
           <li
