@@ -1,8 +1,8 @@
-import axios, { CanceledError } from "axios";
 import { useEffect, useState } from "react";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm, FieldValues } from "react-hook-form";
+import apiClient, { CanceledError } from "./services/api-client";
 
 type FormData = {
   name: string;
@@ -33,8 +33,8 @@ function App() {
   useEffect(() => {
     const controller = new AbortController();
     setLoading(true);
-    axios
-      .get<User[]>("https://jsonplaceholder.typicode.com/users", {
+    apiClient
+      .get<User[]>("/users", {
         signal: controller.signal,
       })
       .then((res) => {
@@ -54,20 +54,18 @@ function App() {
     const originalUsers = [...users];
     setUsers(users.filter((user) => user.id !== id));
 
-    axios
-      .delete(`https://jsonplaceholder.typicode.com/users/${id}`)
-      .catch((err) => {
-        setUsers(originalUsers);
-        setError(err.message);
-      });
+    apiClient.delete(`/users/${id}`).catch((err) => {
+      setUsers(originalUsers);
+      setError(err.message);
+    });
   };
 
   const onSubmit = (data: FormData) => {
     const originalUsers = [...users];
     const newUser = { id: users.length + 1, ...data };
     setUsers([newUser, ...users]);
-    axios
-      .post("https://jsonplaceholder.typicode.com/users/", newUser)
+    apiClient
+      .post("/users/", newUser)
       .then(({ data: savedUser }) => {
         setUsers([savedUser, ...users]);
         reset();
@@ -86,15 +84,10 @@ function App() {
         u.id === user.id ? { ...user, name: user.name + " updated" } : u
       )
     );
-    axios
-      .patch(
-        `https://jsonplaceholder.typicode.com/users/${user.id}`,
-        updatedUser
-      )
-      .catch((err) => {
-        setError(err.message);
-        setUsers(originalUsers);
-      });
+    apiClient.patch(`/users/${user.id}`, updatedUser).catch((err) => {
+      setError(err.message);
+      setUsers(originalUsers);
+    });
   };
 
   return (
