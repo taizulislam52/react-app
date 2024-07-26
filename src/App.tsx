@@ -78,6 +78,25 @@ function App() {
       });
   };
 
+  const onUpdate = (user: User) => {
+    const originalUsers = [...users];
+    const updatedUser = { ...user, name: user.name + " updated" };
+    setUsers(
+      users.map((u) =>
+        u.id === user.id ? { ...user, name: user.name + " updated" } : u
+      )
+    );
+    axios
+      .patch(
+        `https://jsonplaceholder.typicode.com/users/${user.id}`,
+        updatedUser
+      )
+      .catch((err) => {
+        setError(err.message);
+        setUsers(originalUsers);
+      });
+  };
+
   return (
     <div className="container my-4">
       {error && <p className="text-danger">{error}</p>}
@@ -118,13 +137,20 @@ function App() {
             className="list-group-item d-flex justify-content-between"
           >
             {user.name}
-            <button
-              className="btn btn-outline-danger"
-              onClick={() => onDelete(user.id)}
-            >
-              {" "}
-              Delete
-            </button>
+            <div>
+              <button
+                className="btn btn-outline-primary me-2"
+                onClick={() => onUpdate(user)}
+              >
+                Updata
+              </button>
+              <button
+                className="btn btn-outline-danger"
+                onClick={() => onDelete(user.id)}
+              >
+                Delete
+              </button>
+            </div>
           </li>
         ))}
       </ul>
