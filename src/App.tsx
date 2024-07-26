@@ -1,16 +1,13 @@
 import { useEffect, useState } from "react";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useForm, FieldValues } from "react-hook-form";
-import apiClient, { CanceledError } from "./services/api-client";
+import { useForm } from "react-hook-form";
+import userService, { User } from "./services/user-service";
+import { CanceledError } from "./services/api-client";
 
 type FormData = {
   name: string;
 };
-interface User {
-  id: number;
-  name: string;
-}
 
 const schema: yup.ObjectSchema<FormData> = yup.object({
   name: yup.string().required("Name is required"),
@@ -31,12 +28,10 @@ function App() {
   });
 
   useEffect(() => {
-    const controller = new AbortController();
     setLoading(true);
-    apiClient
-      .get<User[]>("/users", {
-        signal: controller.signal,
-      })
+    const { request, cancel } = userService.getAllUsers();
+
+    request
       .then((res) => {
         setUsers(res.data);
         setLoading(false);
@@ -47,14 +42,14 @@ function App() {
         setLoading(false);
       });
 
-    return () => controller.abort();
+    return () => cancel();
   }, []);
 
   const onDelete = (id: number) => {
     const originalUsers = [...users];
     setUsers(users.filter((user) => user.id !== id));
 
-    apiClient.delete(`/users/${id}`).catch((err) => {
+    userService.deleteUser(id).catch((err) => {
       setUsers(originalUsers);
       setError(err.message);
     });
@@ -64,8 +59,9 @@ function App() {
     const originalUsers = [...users];
     const newUser = { id: users.length + 1, ...data };
     setUsers([newUser, ...users]);
-    apiClient
-      .post("/users/", newUser)
+
+    userService
+      .createUser(newUser)
       .then(({ data: savedUser }) => {
         setUsers([savedUser, ...users]);
         reset();
@@ -84,7 +80,8 @@ function App() {
         u.id === user.id ? { ...user, name: user.name + " updated" } : u
       )
     );
-    apiClient.patch(`/users/${user.id}`, updatedUser).catch((err) => {
+
+    userService.updateUser(updatedUser).catch((err) => {
       setError(err.message);
       setUsers(originalUsers);
     });
