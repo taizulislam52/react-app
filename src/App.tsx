@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import userService, { User } from "./services/user-service";
-import { CanceledError } from "./services/api-client";
+import useUsers from "./hooks/useUsers";
 
 type FormData = {
   name: string;
@@ -14,9 +13,7 @@ const schema: yup.ObjectSchema<FormData> = yup.object({
 });
 
 function App() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [error, setError] = useState("");
-  const [isLoading, setLoading] = useState(false);
+  const { users, error, isLoading, setUsers, setError } = useUsers();
 
   const {
     register,
@@ -26,24 +23,6 @@ function App() {
   } = useForm<FormData>({
     resolver: yupResolver(schema),
   });
-
-  useEffect(() => {
-    setLoading(true);
-    const { request, cancel } = userService.getAll<User>();
-
-    request
-      .then((res) => {
-        setUsers(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        if (err instanceof CanceledError) return;
-        setError(err.message);
-        setLoading(false);
-      });
-
-    return () => cancel();
-  }, []);
 
   const onDelete = (id: number) => {
     const originalUsers = [...users];
